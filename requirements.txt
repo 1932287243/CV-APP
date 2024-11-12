@@ -1,0 +1,9 @@
+numpy==1.24.4 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+opencv-python==4.9.0.80 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+PyQt5==5.14.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+PyQtChart==5.14.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/
+ffmpeg-python -i https://pypi.tuna.tsinghua.edu.cn/simple/
+lxml
+psutil
+pynvml
+requests

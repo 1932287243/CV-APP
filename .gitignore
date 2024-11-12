@@ -1,0 +1,16 @@
+*.*
+*
+!*/
+!/app/*
+!/res/*
+!/ui/*
+!/utils/*
+!README.md
+!.gitignore
+!requirements.txt
+/dist
+/test
+/log
+dist.zip
+main.spec
+/build
