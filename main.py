@@ -261,12 +261,7 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                     self.images_color_convert.setInputPath(selected_path)
                 if self.cur_listwidget_index == 4:
                     self.images_spin.setInputPath(selected_path)
-                
 
-
-    dsajdklsahdjksahgdquhw
-    dsa;ldfjjsahkfhdsafdioyhlaskludhiuywADHG
-    SDAjdksawhdyufqwehujoi
     # 选择保存路径
     def selectSavePath(self):
         selected_path = QFileDialog.getExistingDirectory(self, "select path", "")
