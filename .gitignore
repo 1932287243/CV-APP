@@ -8,6 +8,7 @@
 !README.md
 !.gitignore
 !requirements.txt
+!main.py
 /dist
 /test
 /log
