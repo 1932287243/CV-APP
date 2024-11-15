@@ -180,12 +180,14 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
     def set_current_list_index(self, index):
         self.cur_listwidget_index = index
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 2:
+            self.stackedWidget_2.setCurrentIndex(2)
             self.scroll_text_select_path_12_3.setText(self.images_grayscale._input_path)
             self.label_139.setText("")
             self.scroll_text_save_path_12_3.setText(self.images_grayscale._output_path)
             self.label_138.setText("")
             self.label_131.setText("图像灰度化:将左边图片进行灰度化处理")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 3:
+            self.stackedWidget_2.setCurrentIndex(2)
             self.scroll_text_select_path_12_3.setText(self.images_color_convert._input_path)
             self.label_139.setText("")
             self.scroll_text_save_path_12_3.setText(self.images_color_convert._output_path)
@@ -193,6 +195,7 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_131.setText("图像反色：将左边图片进行图像反色处理")
             self.label_86.setText("图像反色")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 4:
+            self.stackedWidget_2.setCurrentIndex(2)
             self.scroll_text_select_path_12_3.setText(self.images_spin._input_path)
             self.label_139.setText("")
             self.scroll_text_save_path_12_3.setText(self.images_spin._output_path)
@@ -330,10 +333,22 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
             if self.cur_listwidget_index == 2:
                 self.images_grayscale.start()
+                if self.checkBox.isChecked():
+                    self.images_grayscale._func_select = 0
+                else:
+                    self.images_grayscale._func_select = 1
             if self.cur_listwidget_index == 3:
                 self.images_color_convert.start()
+                if self.checkBox.isChecked():
+                    self.images_color_convert._func_select = 0
+                else:
+                    self.images_color_convert._func_select = 1
             if self.cur_listwidget_index == 4:
                 self.images_spin.start()
+                if self.checkBox.isChecked():
+                    self.images_spin._func_select = 0
+                else:
+                    self.images_spin._func_select = 1
 
     def receiveVideoInfo(self, fps, width, height, num_frames, codec, format_video):
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 0:

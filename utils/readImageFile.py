@@ -3,6 +3,7 @@ import shutil
 import cv2
 import re
 import numpy as np
+import imageio
 
 from PyQt5.QtCore import QThread,  pyqtSignal
 from PyQt5.QtGui import QImage,  QPixmap
@@ -92,43 +93,102 @@ class GetImageFromFile(QThread):
         self.sendImageIndexToWidget.emit(self._cur_image_index, len(self._image_file))
 
 
+    # def resizeAndPadImage(self, input_image_path, output_image_path, size):
+    #     desired_width, desired_height = size
+    #     # 加载图像
+    #     image = cv2.imread(input_image_path)
+    #     self.sendFrameToUI(image, 1)
+    #     original_height, original_width = image.shape[:2]
+
+    #     # 计算缩放比例
+    #     scale_x = desired_width / original_width
+    #     scale_y = desired_height / original_height
+    #     scale = min(scale_x, scale_y)
+    #     # 根据比例因子计算放大后的尺寸
+    #     new_width = int(original_width*scale)
+    #     new_height = int(original_height*scale)
+    #     # # 使用LapSRN x4模型
+    #     # resized_image = upscale(img=image, alg_name='lapsrn', scale=2)
+    #     # 缩放图像
+    #     resized_image = cv2.resize(image, None, fx=scale, fy=scale)
+    #     # 使用双线性插值方法进行放大
+    #     # resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+
+    #     # 创建一个新的画布，填充空白区域
+    #     padded_image = 255 * np.zeros((desired_height, desired_width, 3), dtype=np.uint8)
+    #     pad_top = (desired_height - resized_image.shape[0]) // 2
+    #     pad_left = (desired_width - resized_image.shape[1]) // 2
+    #     padded_image[pad_top:pad_top+resized_image.shape[0], pad_left:pad_left+resized_image.shape[1]] = resized_image
+    #     # 对填充后的图像进行增强（直方图均衡化）
+    #     # gray_image = cv2.cvtColor(padded_image, cv2.COLOR_BGR2GRAY)
+    #     # enhanced_image = cv2.equalizeHist(gray_image)
+    #     # enhanced_image = cv2.cvtColor(enhanced_image, cv2.COLOR_GRAY2BGR)
+    #     self.sendFrameToUI(padded_image, 2)
+    #     # # 从绝对路径中提取文件名
+    #     # filename = os.path.basename(input_image_path)
+    #     # outpu_file_path = os.path.join(output_image_path, filename)  # 构建文件的绝对路径
+    #     # # 保存输出图像
+    #     # cv2.imwrite(outpu_file_path, padded_image)
+    #     self._save_single_frame(padded_image, self._save_path)
     def resizeAndPadImage(self, input_image_path, output_image_path, size):
-        desired_width, desired_height = size
-        # 加载图像
-        image = cv2.imread(input_image_path)
-        self.sendFrameToUI(image, 1)
-        original_height, original_width = image.shape[:2]
+        """
+        缩放并填充图片到目标尺寸，不使用PIL等高级库。
+        
+        Args:
+            input_image_path (str): 输入图片路径。
+            output_image_path (str): 输出图片路径。
+            size (tuple): 目标尺寸 (width, height)。
+        """
+        # 读取图片为numpy数组
+        image = imageio.imread(input_image_path)  # (H, W, C)
 
-        # 计算缩放比例
-        scale_x = desired_width / original_width
-        scale_y = desired_height / original_height
-        scale = min(scale_x, scale_y)
-        # 根据比例因子计算放大后的尺寸
-        new_width = int(original_width*scale)
-        new_height = int(original_height*scale)
-        # # 使用LapSRN x4模型
-        # resized_image = upscale(img=image, alg_name='lapsrn', scale=2)
-        # 缩放图像
-        resized_image = cv2.resize(image, None, fx=scale, fy=scale)
-        # 使用双线性插值方法进行放大
-        # resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+        # 提取目标宽高
+        target_width, target_height = size
 
-        # 创建一个新的画布，填充空白区域
-        padded_image = 255 * np.zeros((desired_height, desired_width, 3), dtype=np.uint8)
-        pad_top = (desired_height - resized_image.shape[0]) // 2
-        pad_left = (desired_width - resized_image.shape[1]) // 2
-        padded_image[pad_top:pad_top+resized_image.shape[0], pad_left:pad_left+resized_image.shape[1]] = resized_image
-        # 对填充后的图像进行增强（直方图均衡化）
-        # gray_image = cv2.cvtColor(padded_image, cv2.COLOR_BGR2GRAY)
-        # enhanced_image = cv2.equalizeHist(gray_image)
-        # enhanced_image = cv2.cvtColor(enhanced_image, cv2.COLOR_GRAY2BGR)
-        self.sendFrameToUI(padded_image, 2)
-        # # 从绝对路径中提取文件名
-        # filename = os.path.basename(input_image_path)
-        # outpu_file_path = os.path.join(output_image_path, filename)  # 构建文件的绝对路径
-        # # 保存输出图像
-        # cv2.imwrite(outpu_file_path, padded_image)
-        self._save_single_frame(padded_image, self._save_path)
+        # 原图片宽高
+        original_height, original_width, _ = image.shape
+
+        # 计算缩放比例，保持宽高比例一致
+        scale_w = target_width / original_width
+        scale_h = target_height / original_height
+        scale = min(scale_w, scale_h)
+
+        # 缩放后的宽高
+        new_width = int(original_width * scale)
+        new_height = int(original_height * scale)
+        # print(f"缩放比例: {scale}, 新尺寸: {new_width}x{new_height}")
+
+        # 缩放图片 (双线性插值)
+        resized_image = np.zeros((new_height, new_width, 3), dtype=np.uint8)
+        for i in range(new_height):
+            for j in range(new_width):
+                src_x = j / scale
+                src_y = i / scale
+                x0, y0 = int(src_x), int(src_y)
+                x1, y1 = min(x0 + 1, original_width - 1), min(y0 + 1, original_height - 1)
+
+                dx, dy = src_x - x0, src_y - y0
+                resized_image[i, j] = (
+                    (1 - dx) * (1 - dy) * image[y0, x0]
+                    + dx * (1 - dy) * image[y0, x1]
+                    + (1 - dx) * dy * image[y1, x0]
+                    + dx * dy * image[y1, x1]
+                )
+
+        # 创建目标画布
+        result_image = np.zeros((target_height, target_width, 3), dtype=np.uint8)
+
+        # 计算粘贴的起始位置
+        top = (target_height - new_height) // 2
+        left = (target_width - new_width) // 2
+
+        # 将缩放图片粘贴到画布中央
+        result_image[top:top+new_height, left:left+new_width] = resized_image
+        r_array = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        self.sendFrameToUI(r_array, 1)
+        result_image = cv2.cvtColor(result_image, cv2.COLOR_BGR2RGB)
+        self.sendFrameToUI(result_image, 2)
+        self._save_single_frame(result_image, self._save_path)
 
     def resizeAllImage(self):
         print(self._desire_image_size)

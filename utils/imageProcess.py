@@ -22,6 +22,7 @@ class ImageProcess(QThread):
         self._image_file = []   # 获取需要处理目录下所有的图片文件
         self._save_format = 'jpg'
         self._cur_image_index = 0
+        self._func_select = 0
         
     # 设置输入文件的路径
     def setInputPath(self, path):
@@ -58,7 +59,9 @@ class ImageProcess(QThread):
                     self._image_file.append(file_path)  # 将绝对路径添加到列表中
 
     def sendFrameToUI(self, frame, index):
-        rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # OpenCV 默认使用BGR格式，转换成RGB格式
+        # rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # OpenCV 默认使用BGR格式，转换成RGB格式
+        rgb_image = np.array(frame)
+        # rgb_image = frame
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
         q_image = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
