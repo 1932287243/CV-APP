@@ -9,6 +9,7 @@
 !.gitignore
 !requirements.txt
 !main.py
+!/assets/*
 /dist
 /test
 /log

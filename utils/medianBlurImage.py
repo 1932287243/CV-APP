@@ -31,12 +31,10 @@ class MedianBlurImage(utils.imageProcess.ImageProcess):
 
         noisy_img = cv2.cvtColor(noisy_img, cv2.COLOR_BGR2RGB)   # 为了显示
         self.sendFramesToUI(send_image, 0)
-        # self.sendFramesToUI(equalized_hist_image, 1)
-        self.sendFrameToUI(noisy_img, 0)
+        self.sendFramesToUI(noisy_img, 1)
         # 转为灰度图像
         opencv_filtered_img = cv2.cvtColor(opencv_filtered_img, cv2.COLOR_BGR2RGB)   # 为了显示
-        # self.sendFrameToUI(opencv_filtered_img, 2)
-        self.sendFramesToUI(opencv_filtered_img, 1)
+        self.sendFramesToUI(opencv_filtered_img, 2)
         self._save_single_frame(opencv_filtered_img, self._save_path)
 
     def sendFramesToUI(self, frame, index):
@@ -110,14 +108,12 @@ class MedianBlurImage(utils.imageProcess.ImageProcess):
         self.sendFramesToUI(raw_image, 0)
 
         # 转换为 OpenCV 可显示的格式
-      
         noisy_img = cv2.cvtColor(noisy_img, cv2.COLOR_BGR2RGB)
-        self.sendFrameToUI(noisy_img, 1)
-        filtered_img = cv2.cvtColor(filtered_img, cv2.COLOR_BGR2RGB)
-        self.sendFramesToUI(filtered_img, 1)
+        self.sendFramesToUI(noisy_img, 1)
 
-        # filtered_image3 = cv2.cvtColor(filtered_image3, cv2.COLOR_BGR2RGB)
-        # self.sendFrameToUI(filtered_image3, 2)
+        filtered_img = cv2.cvtColor(filtered_img, cv2.COLOR_BGR2RGB)
+        self.sendFramesToUI(filtered_img, 2)
+
         self._save_single_frame(filtered_img, self._save_path)
 
     def grayscaleAllImage(self):

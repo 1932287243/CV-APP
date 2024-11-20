@@ -54,6 +54,9 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.images_medianBlur = utils.medianBlurImage.MedianBlurImage()
 
         self.format_list = ['jpg', 'png', 'yuv']
+        self.sharping_mode_list = ['roberts', 'sobel', 'laplace']
+        self.filter_types_list = ['lowpass', 'highpass']
+        self.filter_names_list = ['ideal','butterworth', 'gaussian']
         self.current_format = ['png', 'jpg', 'yuv420p', 'yuv420sp']
         self.convert_format = ['png', 'jpg', 'yuv420p', 'yuv420sp']
         self.input_file = ''
@@ -73,6 +76,13 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.comboBox_8.addItem(entry)
         for entry in self.convert_format:
             self.comboBox_9.addItem(entry)
+        # 初始化图像锐化的模式选择
+        for entry in self.sharping_mode_list:   
+            self.comboBox_5.addItem(entry)
+        for entry in self.filter_types_list:   
+            self.comboBox.addItem(entry)
+        for entry in self.filter_names_list:   
+            self.comboBox_2.addItem(entry)
             
         self.spinBox_5.setRange(-1, 99999)
         self.spinBox_6.setRange(-1, 99999)
@@ -143,6 +153,7 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.listWidget.currentRowChanged.connect(self.stackedWidget.setCurrentIndex)
         # self.listWidget_2.currentRowChanged.connect(self.stackedWidget_2.setCurrentIndex)
         self.listWidget_3.currentRowChanged.connect(self.stackedWidget_3.setCurrentIndex)
+
         self.listWidget_6.currentRowChanged.connect(self.stackedWidget_6.setCurrentIndex)
 
         self.images_mp4.sendCameraMsgToWidget.connect(self.receiveVideoInfo)
@@ -234,7 +245,12 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.label_66.setText("NO DATA")
         self.label_91.setText("NO DATA")
         self.label_73.setText("NO DATA")
+        self.label_79.setText("NO DATA")
+        self.label_84.setText("NO DATA")
+        self.label_85.setText("NO DATA")
         self.label_146.setText("NO DATA")
+        self.label_147.setText("NO DATA")
+        self.label_148.setText("NO DATA")
         self.cur_listwidget_index = index
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 0:
             self.stackedWidget_2.setCurrentIndex(0)
@@ -280,7 +296,11 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_131.setText("图像透视:将图片进行透视")
             self.label_86.setText("图像透视")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 7:
+            self.label_3.setText("原始图片直方图")
+            self.label_4.setText("处理后的直方图")
             self.stackedWidget_2.setCurrentIndex(3)
+            self.stackedWidget_4.setCurrentIndex(0)
+            self.stackedWidget_5.setCurrentIndex(0)
             self.scroll_text_select_path_15_7.setText(self.images_equalizeHist._input_path)
             self.label_145.setText("")
             self.scroll_text_save_path_15_7.setText(self.images_equalizeHist._output_path)
@@ -289,6 +309,8 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_92.setText("直方图均衡化")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 8:
             self.stackedWidget_2.setCurrentIndex(3)
+            self.stackedWidget_5.setCurrentIndex(1)
+            self.stackedWidget_4.setCurrentIndex(2)
             self.scroll_text_select_path_15_7.setText(self.images_sharpening._input_path)
             self.label_145.setText("")
             self.scroll_text_save_path_15_7.setText(self.images_sharpening._output_path)
@@ -297,6 +319,8 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_92.setText("图像锐化")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 9:
             self.stackedWidget_2.setCurrentIndex(3)
+            self.stackedWidget_5.setCurrentIndex(1)
+            self.stackedWidget_4.setCurrentIndex(1)
             self.scroll_text_select_path_15_7.setText(self.images_filter._input_path)
             self.label_145.setText("")
             self.scroll_text_save_path_15_7.setText(self.images_filter._output_path)
@@ -304,7 +328,12 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_137.setText("图像滤波:将图片进行滤波")
             self.label_92.setText("图像滤波")
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 10:
+            self.label_9.setText("原图")
+            self.label_10.setText("加噪声")
+            self.label_11.setText("滤波后")
             self.stackedWidget_2.setCurrentIndex(3)
+            self.stackedWidget_5.setCurrentIndex(2)
+            self.stackedWidget_4.setCurrentIndex(0)
             self.scroll_text_select_path_15_7.setText(self.images_medianBlur._input_path)
             self.label_145.setText("")
             self.scroll_text_save_path_15_7.setText(self.images_medianBlur._output_path)
@@ -509,12 +538,17 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 else:
                     self.images_equalizeHist._func_select = 1
             if self.cur_listwidget_index == 8:
+                self.images_sharpening.sharpening_mode = self.comboBox_5.currentText()
                 self.images_sharpening.start()
                 if self.checkBox_3.isChecked():
                     self.images_sharpening._func_select = 0
                 else:
                     self.images_sharpening._func_select = 1
             if self.cur_listwidget_index == 9:
+                self.images_filter.filter_types = self.comboBox.currentText()
+                self.images_filter.filter_names = self.comboBox_2.currentText()
+                self.images_filter.d0 = int(self.lineEdit_2.text())
+                self.images_filter.n = int(self.lineEdit_3.text())
                 self.images_filter.start()
                 if self.checkBox_3.isChecked():
                     self.images_filter._func_select = 0
@@ -551,7 +585,8 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 0:
             self.label_36.setText(f"{cur_index}/{sum_num+1}")
             self.progressBar_3.setValue(int(cur_index/(sum_num+1)*100))
-
+        if sum_num == 0:
+            return
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 1:
             self.label_53.setText(f"{(cur_index+1)}/{sum_num}")
             self.progressBar_4.setValue(int((cur_index+1)/(sum_num)*100))
@@ -591,9 +626,14 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
             if self.cur_listwidget_index <= 6:
                 self.label_57.setPixmap(image)
-            else:
+            if self.cur_listwidget_index == 7:
+                self.label_147.setPixmap(image)
+            if self.cur_listwidget_index == 8:
                 self.label_73.setPixmap(image)
-
+            if self.cur_listwidget_index == 9:
+                self.label_73.setPixmap(image)
+            if self.cur_listwidget_index == 10:
+                self.label_84.setPixmap(image)
         if self.cur_tabwidget_index == 2 and self.cur_listwidget_index == 1:
             self.label_77.setPixmap(image.scaled(self.label_77.size()))
     
@@ -603,7 +643,13 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
             if self.cur_listwidget_index <= 6:
                 self.label_90.setPixmap(image)
-            else:
+            if self.cur_listwidget_index == 7:
+                self.label_148.setPixmap(image)
+            if self.cur_listwidget_index == 8:
+                self.label_79.setPixmap(image) 
+            if self.cur_listwidget_index == 9:
+                self.label_79.setPixmap(image)
+            if self.cur_listwidget_index == 10:
                 self.label_146.setPixmap(image)
 
     def showOtherImage(self, image, index):
@@ -614,20 +660,22 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 self.label_91.setPixmap(image)
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 8:
             if index == 0:
-                self.label_66.setPixmap(image)
+                self.label_73.setPixmap(image)
             elif index == 1:
-                self.label_91.setPixmap(image)
+                self.label_79.setPixmap(image)
 
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 9:
             if index == 0:
-                self.label_66.setPixmap(image)
+                self.label_73.setPixmap(image)
             elif index == 1:
-                self.label_91.setPixmap(image)
+                self.label_79.setPixmap(image)
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 10:
             if index == 0:
-                self.label_66.setPixmap(image)
+                self.label_84.setPixmap(image)
             elif index == 1:
-                self.label_91.setPixmap(image)
+                self.label_85.setPixmap(image)
+            elif index == 2:
+                self.label_146.setPixmap(image)
 
     def showCameraName(self, name):
         self.label_18.setText(name)

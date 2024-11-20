@@ -13,8 +13,8 @@ class FilterImage(utils.imageProcess.ImageProcess):
     def __init__(self, parent=None):
         super(FilterImage, self).__init__(parent)
         # 设置滤波器参数
-        self.filter_types = ["lowpass", "highpass"]
-        self.filter_names = ["ideal", "butterworth", "gaussian"]
+        self.filter_types = ""
+        self.filter_names = "" 
         self.d0 = 50  # 截止频率
         self.n = 2    # 巴特沃斯滤波器阶数
 
@@ -26,19 +26,11 @@ class FilterImage(utils.imageProcess.ImageProcess):
         if raw_image is None:
             print("无法加载图像，请检查路径！")
             return
-         # OpenCV 实现的锐化
-        sobel_opencv_result = self.opencv_sharpening(raw_image, operator="sobel")
-        laplace_opencv_result = self.opencv_sharpening(raw_image, operator="laplace")
 
-        sobel_opencv_result = cv2.cvtColor(sobel_opencv_result, cv2.COLOR_BGR2RGB)   # 为了显示
-        self.sendFramesToUI(sobel_opencv_result, 0)
-        # self.sendFramesToUI(equalized_hist_image, 1)
-        self.sendFrameToUI(send_image, 1)
-        # opencv_equalized_img = cv2.equalizeHist(raw_image)
+        self.sendFramesToUI(send_image, 0)
+        self.sendFramesToUI(send_image, 1)
         # 转为灰度图像
-        laplace_opencv_result = cv2.cvtColor(laplace_opencv_result, cv2.COLOR_BGR2RGB)   # 为了显示
-        self.sendFrameToUI(laplace_opencv_result, 2)
-        self._save_single_frame(laplace_opencv_result, self._save_path)
+        self._save_single_frame(send_image, self._save_path)
 
     def sendFramesToUI(self, frame, index):
         rgb_image = np.array(frame)
@@ -74,19 +66,19 @@ class FilterImage(utils.imageProcess.ImageProcess):
 
         if filter_name == "ideal":
             if filter_type == "lowpass":
-                filter_mask = np.where(d_uv <= d0, 1, 0)
+                filter_mask = np.where(d_uv <= self.d0, 1, 0)
             elif filter_type == "highpass":
-                filter_mask = np.where(d_uv > d0, 1, 0)
+                filter_mask = np.where(d_uv > self.d0, 1, 0)
         elif filter_name == "butterworth":
             if filter_type == "lowpass":
-                filter_mask = 1 / (1 + (d_uv / d0) ** (2 * n))
+                filter_mask = 1 / (1 + (d_uv / self.d0) ** (2 * self.n))
             elif filter_type == "highpass":
-                filter_mask = 1 / (1 + (d0 / d_uv) ** (2 * n))
+                filter_mask = 1 / (1 + (self.d0 / d_uv) ** (2 * self.n))
         elif filter_name == "gaussian":
             if filter_type == "lowpass":
-                filter_mask = np.exp(-(d_uv ** 2) / (2 * (d0 ** 2)))
+                filter_mask = np.exp(-(d_uv ** 2) / (2 * (self.d0 ** 2)))
             elif filter_type == "highpass":
-                filter_mask = 1 - np.exp(-(d_uv ** 2) / (2 * (d0 ** 2)))
+                filter_mask = 1 - np.exp(-(d_uv ** 2) / (2 * (self.d0 ** 2)))
         else:
             raise ValueError("Unsupported filter name. Choose 'ideal', 'butterworth', or 'gaussian'.")
 
@@ -105,34 +97,32 @@ class FilterImage(utils.imageProcess.ImageProcess):
         raw_image = cv2.imread(input_image_path, cv2.IMREAD_GRAYSCALE)
         if raw_image is None:
             raise FileNotFoundError("输入图像文件未找到！")
-
-        filtered_image1, filter_mask1 = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "ideal", self.d0, self.n)
-        filtered_image2, filter_mask2 = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "butterworth", self.d0, self.n)
-        filtered_image3, filter_mask3 = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "gaussian", self.d0, self.n)
         
-        # filtered_image1, filter_mask1 = self.apply_filter_in_frequency_domain(raw_image, "highpass", "ideal", self.d0, self.n)
-        # filtered_image2, filter_mask2 = self.apply_filter_in_frequency_domain(raw_image, "highpass", "butterworth", self.d0, self.n)
-        # filtered_image3, filter_mask3 = self.apply_filter_in_frequency_domain(raw_image, "highpass", "gaussian", self.d0, self.n)
+        if self.filter_types == "lowpass":
+            if self.filter_names == "ideal":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "ideal", self.d0, self.n)
+            if self.filter_names == "butterworth":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "butterworth", self.d0, self.n)
+            if self.filter_names == "gaussian":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "lowpass", "gaussian", self.d0, self.n)
+        else:
+            if self.filter_names == "ideal":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "highpass", "ideal", self.d0, self.n)
+            if self.filter_names == "butterworth":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "highpass", "butterworth", self.d0, self.n)
+            if self.filter_names == "gaussian":
+                filtered_image, filter_mask = self.apply_filter_in_frequency_domain(raw_image, "highpass", "gaussian", self.d0, self.n)
 
         raw_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
         self.sendFramesToUI(raw_image, 0)
 
         # 转换为 OpenCV 可显示的格式
-        filtered_image1 = cv2.normalize(filtered_image1, None, 0, 255, cv2.NORM_MINMAX)
-        filtered_image1 = filtered_image1.astype(np.uint8)
-        filtered_image1 = cv2.cvtColor(filtered_image1, cv2.COLOR_BGR2RGB)
-        self.sendFramesToUI(filtered_image1, 1)
+        filtered_image = cv2.normalize(filtered_image, None, 0, 255, cv2.NORM_MINMAX)
+        filtered_image = filtered_image.astype(np.uint8)
+        filtered_image = cv2.cvtColor(filtered_image, cv2.COLOR_BGR2RGB)
+        self.sendFramesToUI(filtered_image, 1)
 
-        filtered_image2 = cv2.normalize(filtered_image2, None, 0, 255, cv2.NORM_MINMAX)
-        filtered_image2 = filtered_image2.astype(np.uint8)
-        filtered_image2 = cv2.cvtColor(filtered_image2, cv2.COLOR_BGR2RGB)
-        self.sendFrameToUI(filtered_image2, 1)
-
-        filtered_image3 = cv2.normalize(filtered_image3, None, 0, 255, cv2.NORM_MINMAX)
-        filtered_image3 = filtered_image3.astype(np.uint8)
-        filtered_image3 = cv2.cvtColor(filtered_image3, cv2.COLOR_BGR2RGB)
-        self.sendFrameToUI(filtered_image3, 2)
-        self._save_single_frame(filtered_image3, self._save_path)
+        self._save_single_frame(filtered_image, self._save_path)
 
     def grayscaleAllImage(self):
         for image_path in self._image_file:
@@ -140,7 +130,10 @@ class FilterImage(utils.imageProcess.ImageProcess):
                 self.self_process(image_path, self._output_path)
             else:
                 self.process(image_path, self._output_path)
+
     def run(self):
+        print(self.filter_names)
+        print(self.filter_types)
         self._cur_image_index = 0
         self._image_file.clear()
         self._save_path = self._makeOutputFolder()      # 

@@ -12,6 +12,7 @@ class SharpeningImage(utils.imageProcess.ImageProcess):
     sendImagesToWidget = pyqtSignal(QPixmap, int)
     def __init__(self, parent=None):
         super(SharpeningImage, self).__init__(parent)
+        self.sharpening_mode = ""
 
     def process(self, input_image_path, output_image_path):
         # 加载图像
@@ -21,19 +22,21 @@ class SharpeningImage(utils.imageProcess.ImageProcess):
         if raw_image is None:
             print("无法加载图像，请检查路径！")
             return
-         # OpenCV 实现的锐化
-        sobel_opencv_result = self.opencv_sharpening(raw_image, operator="sobel")
-        laplace_opencv_result = self.opencv_sharpening(raw_image, operator="laplace")
 
-        sobel_opencv_result = cv2.cvtColor(sobel_opencv_result, cv2.COLOR_BGR2RGB)   # 为了显示
-        self.sendFramesToUI(sobel_opencv_result, 0)
-        # self.sendFramesToUI(equalized_hist_image, 1)
-        self.sendFrameToUI(send_image, 1)
-        # opencv_equalized_img = cv2.equalizeHist(raw_image)
-        # 转为灰度图像
-        laplace_opencv_result = cv2.cvtColor(laplace_opencv_result, cv2.COLOR_BGR2RGB)   # 为了显示
-        self.sendFrameToUI(laplace_opencv_result, 2)
-        self._save_single_frame(laplace_opencv_result, self._save_path)
+        # OpenCV 实现的锐化
+        if self.sharpening_mode == "roberts":
+            # result = self.opencv_sharpening(raw_image, operator="roberts")
+            result = raw_image
+        if self.sharpening_mode == "sobel":
+            result = self.opencv_sharpening(raw_image, operator="sobel")
+        if self.sharpening_mode == "laplace":
+            result = self.opencv_sharpening(raw_image, operator="laplace")
+
+        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)   # 为了显示
+        self.sendFramesToUI(send_image, 0)
+        self.sendFramesToUI(result, 1)
+     
+        self._save_single_frame(result, self._save_path)
 
     def sendFramesToUI(self, frame, index):
         rgb_image = np.array(frame)
@@ -99,22 +102,18 @@ class SharpeningImage(utils.imageProcess.ImageProcess):
             raise FileNotFoundError("输入图像文件未找到！")
 
         # 应用锐化
-        roberts_result = self.apply_sharpening(raw_image, operator="roberts")
-        sobel_result = self.apply_sharpening(raw_image, operator="sobel")
-        laplace_result = self.apply_sharpening(raw_image, operator="laplace")
+        if self.sharpening_mode == "roberts":
+            result = self.apply_sharpening(raw_image, operator="roberts")
+        if self.sharpening_mode == "sobel":
+            result = self.apply_sharpening(raw_image, operator="sobel")
+        if self.sharpening_mode == "laplace":
+            result = self.apply_sharpening(raw_image, operator="laplace")
 
         raw_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB)
         self.sendFramesToUI(raw_image, 0)
 
-        roberts_result = cv2.cvtColor(roberts_result, cv2.COLOR_BGR2RGB)
-        self.sendFramesToUI(roberts_result, 1)
-
-        sobel_result = cv2.cvtColor(sobel_result, cv2.COLOR_BGR2RGB)
-        self.sendFrameToUI(sobel_result, 1)
-
-        laplace_result = cv2.cvtColor(laplace_result, cv2.COLOR_BGR2RGB)
-        self.sendFrameToUI(laplace_result, 2)
-        self._save_single_frame(laplace_result, self._save_path)
+        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+        self.sendFramesToUI(result, 1)
 
     def grayscaleAllImage(self):
         for image_path in self._image_file:
