@@ -21,6 +21,13 @@ import utils.viewImage
 import utils.grayscaleImage
 import utils.colorConvertImage
 import utils.spinImage
+import utils.shearImage
+import utils.perspectiveImage
+import utils.equalizeHistImage
+import utils.sharpeningImage
+import utils.filterImage
+import utils.medianBlurImage
+
 
 class CV_Widget(QWidget, ui.widget.Ui_Form):
     sendChangeShowToChart = pyqtSignal(int)
@@ -39,6 +46,12 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.images_grayscale = utils.grayscaleImage.GrayscaleImage()
         self.images_color_convert = utils.colorConvertImage.ColorConvertImage()
         self.images_spin = utils.spinImage.SpinImage()
+        self.images_shear = utils.shearImage.ShearImage()
+        self.images_perspective = utils.perspectiveImage.PerspectiveImage()
+        self.images_equalizeHist = utils.equalizeHistImage.EqualizeHistImage()
+        self.images_sharpening = utils.sharpeningImage.SharpeningImage()
+        self.images_filter = utils.filterImage.FilterImage()
+        self.images_medianBlur = utils.medianBlurImage.MedianBlurImage()
 
         self.format_list = ['jpg', 'png', 'yuv']
         self.current_format = ['png', 'jpg', 'yuv420p', 'yuv420sp']
@@ -99,6 +112,8 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.pushButton_20.clicked.connect(self.changeImageForward)
         self.pushButton_21.clicked.connect(self.changeImageBackward)
         self.pushButton_22.clicked.connect(self.changeImageForward)
+        self.pushButton_23.clicked.connect(self.changeImageBackward)
+        self.pushButton_24.clicked.connect(self.changeImageForward)
         self.pushButton_25.clicked.connect(self.selectSavePath)
         self.pushButton_26.clicked.connect(self.start)
         self.pushButton_27.clicked.connect(self.selectInputPath)
@@ -113,6 +128,11 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.pushButton_34.clicked.connect(self.start)
         self.pushButton_35.clicked.connect(self.selectInputPath)
         self.pushButton_36.clicked.connect(self.reset)
+        # 17/18/19
+        self.pushButton_37.clicked.connect(self.selectSavePath) 
+        self.pushButton_38.clicked.connect(self.start)
+        self.pushButton_39.clicked.connect(self.selectInputPath)
+        self.pushButton_40.clicked.connect(self.reset)
 
         self.listWidget.currentRowChanged.connect(self.set_current_list_index)
         self.listWidget_2.currentRowChanged.connect(self.set_current_list_index)
@@ -121,7 +141,7 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.tabWidget.currentChanged.connect(self.set_current_tab_index) 
 
         self.listWidget.currentRowChanged.connect(self.stackedWidget.setCurrentIndex)
-        self.listWidget_2.currentRowChanged.connect(self.stackedWidget_2.setCurrentIndex)
+        # self.listWidget_2.currentRowChanged.connect(self.stackedWidget_2.setCurrentIndex)
         self.listWidget_3.currentRowChanged.connect(self.stackedWidget_3.setCurrentIndex)
         self.listWidget_6.currentRowChanged.connect(self.stackedWidget_6.setCurrentIndex)
 
@@ -149,7 +169,35 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         self.images_spin.sendRawImageToWidget.connect(self.showImage)
         self.images_spin.sendImageIndexToWidget.connect(self.showSchedule)
         self.images_spin.sendDetailImageToWidget.connect(self.showDetailImage)
-    
+
+        self.images_shear.sendRawImageToWidget.connect(self.showImage)
+        self.images_shear.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_shear.sendDetailImageToWidget.connect(self.showDetailImage)
+        
+        self.images_equalizeHist.sendRawImageToWidget.connect(self.showImage)
+        self.images_equalizeHist.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_equalizeHist.sendDetailImageToWidget.connect(self.showDetailImage)
+        self.images_equalizeHist.sendImagesToWidget.connect(self.showOtherImage)
+        
+        self.images_perspective.sendRawImageToWidget.connect(self.showImage)
+        self.images_perspective.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_perspective.sendDetailImageToWidget.connect(self.showDetailImage)
+        
+        self.images_sharpening.sendRawImageToWidget.connect(self.showImage)
+        self.images_sharpening.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_sharpening.sendDetailImageToWidget.connect(self.showDetailImage)
+        self.images_sharpening.sendImagesToWidget.connect(self.showOtherImage)
+
+        self.images_filter.sendRawImageToWidget.connect(self.showImage)
+        self.images_filter.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_filter.sendDetailImageToWidget.connect(self.showDetailImage)
+        self.images_filter.sendImagesToWidget.connect(self.showOtherImage)
+
+        self.images_medianBlur.sendRawImageToWidget.connect(self.showImage)
+        self.images_medianBlur.sendImageIndexToWidget.connect(self.showSchedule)
+        self.images_medianBlur.sendDetailImageToWidget.connect(self.showDetailImage)
+        self.images_medianBlur.sendImagesToWidget.connect(self.showOtherImage)
+
         self.images_format_cvt.sendRawImageToWidget.connect(self.showImage)
         self.images_format_cvt.sendImageIndexToWidget.connect(self.showSchedule)
 
@@ -176,9 +224,22 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         
         self.scroll_text_save_path_12_3 = utils.scrollText.ScrollTextWindow(self.widget_60, (0,75,255,30))
         self.scroll_text_select_path_12_3 = utils.scrollText.ScrollTextWindow(self.widget_61, (0,75,255,30))
+        
+        self.scroll_text_save_path_15_7 = utils.scrollText.ScrollTextWindow(self.widget_64, (0,75,255,30))
+        self.scroll_text_select_path_15_7 = utils.scrollText.ScrollTextWindow(self.widget_65, (0,75,255,30))
 
     def set_current_list_index(self, index):
+        self.label_57.setText("NO DATA")
+        self.label_90.setText("NO DATA")
+        self.label_66.setText("NO DATA")
+        self.label_91.setText("NO DATA")
+        self.label_73.setText("NO DATA")
+        self.label_146.setText("NO DATA")
         self.cur_listwidget_index = index
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 0:
+            self.stackedWidget_2.setCurrentIndex(0)
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 1:
+            self.stackedWidget_2.setCurrentIndex(1)
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 2:
             self.stackedWidget_2.setCurrentIndex(2)
             self.scroll_text_select_path_12_3.setText(self.images_grayscale._input_path)
@@ -202,6 +263,54 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_138.setText("")
             self.label_131.setText("图像旋转:将图片进行90°旋转")
             self.label_86.setText("图像旋转")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 5:
+            self.stackedWidget_2.setCurrentIndex(2)
+            self.scroll_text_select_path_12_3.setText(self.images_shear._input_path)
+            self.label_139.setText("")
+            self.scroll_text_save_path_12_3.setText(self.images_shear._output_path)
+            self.label_138.setText("")
+            self.label_131.setText("图像斜切:将图片进行斜切")
+            self.label_86.setText("图像斜切")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 6:
+            self.stackedWidget_2.setCurrentIndex(2)
+            self.scroll_text_select_path_12_3.setText(self.images_perspective._input_path)
+            self.label_139.setText("")
+            self.scroll_text_save_path_12_3.setText(self.images_perspective._output_path)
+            self.label_138.setText("")
+            self.label_131.setText("图像透视:将图片进行透视")
+            self.label_86.setText("图像透视")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 7:
+            self.stackedWidget_2.setCurrentIndex(3)
+            self.scroll_text_select_path_15_7.setText(self.images_equalizeHist._input_path)
+            self.label_145.setText("")
+            self.scroll_text_save_path_15_7.setText(self.images_equalizeHist._output_path)
+            self.label_144.setText("")
+            self.label_137.setText("直方图均衡化:将图片进行直方图均衡化")
+            self.label_92.setText("直方图均衡化")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 8:
+            self.stackedWidget_2.setCurrentIndex(3)
+            self.scroll_text_select_path_15_7.setText(self.images_sharpening._input_path)
+            self.label_145.setText("")
+            self.scroll_text_save_path_15_7.setText(self.images_sharpening._output_path)
+            self.label_144.setText("")
+            self.label_137.setText("图像锐化:将图片进行锐化")
+            self.label_92.setText("图像锐化")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 9:
+            self.stackedWidget_2.setCurrentIndex(3)
+            self.scroll_text_select_path_15_7.setText(self.images_filter._input_path)
+            self.label_145.setText("")
+            self.scroll_text_save_path_15_7.setText(self.images_filter._output_path)
+            self.label_144.setText("")
+            self.label_137.setText("图像滤波:将图片进行滤波")
+            self.label_92.setText("图像滤波")
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 10:
+            self.stackedWidget_2.setCurrentIndex(3)
+            self.scroll_text_select_path_15_7.setText(self.images_medianBlur._input_path)
+            self.label_145.setText("")
+            self.scroll_text_save_path_15_7.setText(self.images_medianBlur._output_path)
+            self.label_144.setText("")
+            self.label_137.setText("中值滤波:将图片进行中值滤波")
+            self.label_92.setText("中值滤波")
 
     def set_current_tab_index(self):
         self.stackedWidget_6.setCurrentIndex(0)
@@ -233,8 +342,6 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
     def selectInputPath(self):
         selected_path = QFileDialog.getExistingDirectory(self, "select path", "")
         if selected_path:
-            print(self.cur_tabwidget_index)
-            print(self.cur_listwidget_index)
             if self.cur_tabwidget_index == 2 and self.cur_listwidget_index == 1:
                 self.scroll_text_select_path_21.move_pose(self.label_87)
                 self.scroll_text_select_path_21.setText(selected_path)
@@ -255,15 +362,32 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 self.images_format_cvt.setInputFilePath(selected_path)
             
             if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
-                self.scroll_text_select_path_12_3.move_pose(self.label_139)
-                self.scroll_text_select_path_12_3.setText(selected_path)
-                self.label_139.setText("")
-                if self.cur_listwidget_index == 2:
-                    self.images_grayscale.setInputPath(selected_path)
-                if self.cur_listwidget_index == 3:
-                    self.images_color_convert.setInputPath(selected_path)
-                if self.cur_listwidget_index == 4:
-                    self.images_spin.setInputPath(selected_path)
+                if self.cur_listwidget_index <= 6:
+                    self.scroll_text_select_path_12_3.move_pose(self.label_139)
+                    self.scroll_text_select_path_12_3.setText(selected_path)
+                    self.label_139.setText("")
+                    if self.cur_listwidget_index == 2:
+                        self.images_grayscale.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 3:
+                        self.images_color_convert.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 4:
+                        self.images_spin.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 5:
+                        self.images_shear.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 6:
+                        self.images_perspective.setInputPath(selected_path)
+                else:
+                    self.scroll_text_select_path_15_7.move_pose(self.label_145)
+                    self.scroll_text_select_path_15_7.setText(selected_path)
+                    self.label_145.setText("")
+                    if self.cur_listwidget_index == 7:
+                        self.images_equalizeHist.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 8:
+                        self.images_sharpening.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 9:
+                        self.images_filter.setInputPath(selected_path)
+                    if self.cur_listwidget_index == 10:
+                        self.images_medianBlur.setInputPath(selected_path)
 
     # 选择保存路径
     def selectSavePath(self):
@@ -293,15 +417,32 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 self.images_format_cvt.setOutputPath(selected_path)
             
             if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
-                self.scroll_text_save_path_12_3.move_pose(self.label_138)
-                self.scroll_text_save_path_12_3.setText(selected_path)
-                self.label_138.setText("")
-                if self.cur_listwidget_index == 2:
-                    self.images_grayscale.setOutputPath(selected_path)
-                if self.cur_listwidget_index == 3:
-                    self.images_color_convert.setOutputPath(selected_path)
-                if self.cur_listwidget_index == 4:
-                    self.images_spin.setOutputPath(selected_path)
+                if self.cur_listwidget_index <= 6:
+                    self.scroll_text_save_path_12_3.move_pose(self.label_138)
+                    self.scroll_text_save_path_12_3.setText(selected_path)
+                    self.label_138.setText("")
+                    if self.cur_listwidget_index == 2:
+                        self.images_grayscale.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 3:
+                        self.images_color_convert.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 4:
+                        self.images_spin.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 5:
+                        self.images_shear.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 6:
+                        self.images_perspective.setOutputPath(selected_path)
+                else:
+                    self.scroll_text_save_path_15_7.move_pose(self.label_144)
+                    self.scroll_text_save_path_15_7.setText(selected_path)
+                    self.label_144.setText("")
+                    if self.cur_listwidget_index == 7:
+                        self.images_equalizeHist.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 8:
+                        self.images_sharpening.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 9:
+                        self.images_filter.setOutputPath(selected_path)
+                    if self.cur_listwidget_index == 10:
+                        self.images_medianBlur.setOutputPath(selected_path)
 
     def start(self):
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 0:
@@ -349,6 +490,44 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                     self.images_spin._func_select = 0
                 else:
                     self.images_spin._func_select = 1
+            if self.cur_listwidget_index == 5:
+                self.images_shear.start()
+                if self.checkBox.isChecked():
+                    self.images_shear._func_select = 0
+                else:
+                    self.images_shear._func_select = 1
+            if self.cur_listwidget_index == 6:
+                self.images_perspective.start()
+                if self.checkBox.isChecked():
+                    self.images_perspective._func_select = 0
+                else:
+                    self.images_perspective._func_select = 1
+            if self.cur_listwidget_index == 7:
+                self.images_equalizeHist.start()
+                if self.checkBox_3.isChecked():
+                    self.images_equalizeHist._func_select = 0
+                else:
+                    self.images_equalizeHist._func_select = 1
+            if self.cur_listwidget_index == 8:
+                self.images_sharpening.start()
+                if self.checkBox_3.isChecked():
+                    self.images_sharpening._func_select = 0
+                else:
+                    self.images_sharpening._func_select = 1
+            if self.cur_listwidget_index == 9:
+                self.images_filter.start()
+                if self.checkBox_3.isChecked():
+                    self.images_filter._func_select = 0
+                else:
+                    self.images_filter._func_select = 1
+            if self.cur_listwidget_index == 10:
+                self.images_medianBlur.start()
+                if self.checkBox_3.isChecked():
+                    self.images_medianBlur._func_select = 0
+                else:
+                    self.images_medianBlur._func_select = 1
+
+
 
     def receiveVideoInfo(self, fps, width, height, num_frames, codec, format_video):
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 0:
@@ -386,8 +565,12 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.progressBar_6.setValue(int((cur_index)/(sum_num)*100))
         
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
-            self.label_59.setText(f"{(cur_index)}/{sum_num}")
-            self.progressBar_5.setValue(int((cur_index)/(sum_num)*100))
+            if self.cur_listwidget_index <= 6:
+                self.label_59.setText(f"{(cur_index)}/{sum_num}")
+                self.progressBar_5.setValue(int((cur_index)/(sum_num)*100))
+            else:
+                self.label_71.setText(f"{(cur_index)}/{sum_num}")
+                self.progressBar_8.setValue(int((cur_index)/(sum_num)*100))
 
         if self.cur_tabwidget_index == 2 and self.cur_listwidget_index == 1:
             self.label_78.setText(f"{(cur_index)}/{sum_num}")
@@ -406,7 +589,10 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
             self.label_95.setPixmap(image.scaled(self.label_95.size()))
         
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
-            self.label_57.setPixmap(image)
+            if self.cur_listwidget_index <= 6:
+                self.label_57.setPixmap(image)
+            else:
+                self.label_73.setPixmap(image)
 
         if self.cur_tabwidget_index == 2 and self.cur_listwidget_index == 1:
             self.label_77.setPixmap(image.scaled(self.label_77.size()))
@@ -415,12 +601,37 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 1:
             self.label_126.setPixmap(image.scaled(self.label_126.size()))
         if self.cur_tabwidget_index == 1 and self.cur_listwidget_index >= 2:
-            self.label_90.setPixmap(image)
+            if self.cur_listwidget_index <= 6:
+                self.label_90.setPixmap(image)
+            else:
+                self.label_146.setPixmap(image)
+
+    def showOtherImage(self, image, index):
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 7:
+            if index == 0:
+                self.label_66.setPixmap(image)
+            elif index == 1:
+                self.label_91.setPixmap(image)
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 8:
+            if index == 0:
+                self.label_66.setPixmap(image)
+            elif index == 1:
+                self.label_91.setPixmap(image)
+
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 9:
+            if index == 0:
+                self.label_66.setPixmap(image)
+            elif index == 1:
+                self.label_91.setPixmap(image)
+        if self.cur_tabwidget_index == 1 and self.cur_listwidget_index == 10:
+            if index == 0:
+                self.label_66.setPixmap(image)
+            elif index == 1:
+                self.label_91.setPixmap(image)
 
     def showCameraName(self, name):
         self.label_18.setText(name)
         
-
     def reset(self):
         if self.cur_tabwidget_index == 0 and self.cur_listwidget_index == 0:
             self.label_39.setText(f"宽度:")
@@ -445,6 +656,18 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 self.images_color_convert.changeImageBackward()
             if self.cur_listwidget_index == 4:
                 self.images_spin.changeImageBackward()
+            if self.cur_listwidget_index == 5:
+                self.images_shear.changeImageBackward()
+            if self.cur_listwidget_index == 6:
+                self.images_perspective.changeImageBackward()
+            if self.cur_listwidget_index == 7:
+                self.images_equalizeHist.changeImageBackward()
+            if self.cur_listwidget_index == 8:
+                self.images_sharpening.changeImageBackward()
+            if self.cur_listwidget_index == 9:
+                self.images_filter.changeImageBackward()
+            if self.cur_listwidget_index == 10:
+                self.images_medianBlur.changeImageBackward()
         
     # 下一张图片
     def changeImageForward(self):
@@ -459,7 +682,18 @@ class CV_Widget(QWidget, ui.widget.Ui_Form):
                 self.images_color_convert.changeImageForward()
             if self.cur_listwidget_index == 4:
                 self.images_spin.changeImageForward()
-
+            if self.cur_listwidget_index == 5:
+                self.images_shear.changeImageForward()
+            if self.cur_listwidget_index == 6:
+                self.images_perspective.changeImageForward()
+            if self.cur_listwidget_index == 7:
+                self.images_equalizeHist.changeImageForward()
+            if self.cur_listwidget_index == 8:
+                self.images_sharpening.changeImageForward()
+            if self.cur_listwidget_index == 9:
+                self.images_filter.changeImageForward()
+            if self.cur_listwidget_index == 10:
+                self.images_medianBlur.changeImageForward()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
